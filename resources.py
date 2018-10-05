@@ -1,8 +1,9 @@
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource, abort
 from werkzeug.security import check_password_hash
 
+from app import api
 from auth import self_or_admin, user_exists
 from models import User
 from serialization import UserSchema, LoginSchema
@@ -31,7 +32,7 @@ class UserResource(Resource):
     @self_or_admin
     def delete(self, name):
         User.delete_user(name)
-        return get_jwt_identity()
+        return {}, 204
 
 
 class UsersResource(Resource):
@@ -42,7 +43,8 @@ class UsersResource(Resource):
         loaded = user_schema.load(request.get_json())
         if loaded.errors:
             abort(400, message=loaded.errors)
-        return user_schema.dump(User.add_user(**loaded.data))
+        User.add_user(**loaded.data)
+        return '', 201, {'location': api.url_for(UserResource, name=loaded.data['name'])}
 
 
 class LoginResource(Resource):
