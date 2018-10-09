@@ -7,7 +7,7 @@ from app import db
 class User(db.Entity):
     name = PrimaryKey(str)
     password = Required(str)
-    posts = Set('Post', reverse='user')
+    posts = Set('Post')
 
     @staticmethod
     @db_session
@@ -40,7 +40,6 @@ class User(db.Entity):
 
 class Post(db.Entity):
     id = PrimaryKey(int, auto=True)
-    user = Required(User, reverse='posts')
     text = Required(str)
 
 
