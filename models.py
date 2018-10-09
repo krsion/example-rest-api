@@ -4,11 +4,7 @@ from werkzeug.security import generate_password_hash
 from app import db
 
 
-class User(db.Entity):
-    name = PrimaryKey(str)
-    password = Required(str)
-    posts = Set('Post')
-
+class UserRepository:
     @staticmethod
     @db_session
     def get_user(name):
@@ -38,8 +34,15 @@ class User(db.Entity):
         User.get(name=name).delete()
 
 
+class User(db.Entity, UserRepository):
+    name = PrimaryKey(str)
+    password = Required(str)
+    posts = Set('Post', reverse='author')
+
+
 class Post(db.Entity):
     id = PrimaryKey(int, auto=True)
+    author = Required(User)
     text = Required(str)
 
 
