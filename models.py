@@ -1,4 +1,4 @@
-from pony.orm import PrimaryKey, Required, db_session
+from pony.orm import PrimaryKey, Required, Set, db_session
 from werkzeug.security import generate_password_hash
 
 from app import db
@@ -7,6 +7,7 @@ from app import db
 class User(db.Entity):
     name = PrimaryKey(str)
     password = Required(str)
+    posts = Set('Post', reverse='user')
 
     @staticmethod
     @db_session
@@ -35,6 +36,12 @@ class User(db.Entity):
     @db_session
     def delete_user(name):
         User.get(name=name).delete()
+
+
+class Post(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    user = Required(User, reverse='posts')
+    text = Required(str)
 
 
 db.generate_mapping(create_tables=True)
