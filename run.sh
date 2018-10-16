@@ -4,4 +4,5 @@ source venv/Scripts/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 export FLASK_ENV=development
+export FLASK_APP=app.py
 flask run

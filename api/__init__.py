@@ -14,7 +14,12 @@ ma = Marshmallow(app)
 
 jwt = JWTManager(app)
 
-from .resources import UserResource, UsersResource, LoginResource, PostResource, PostsResource
+from .user import User
+from .post import PostResource, PostsResource
+from .user import UserResource, UsersResource
+from .login import LoginResource
+
+db.generate_mapping()
 
 api.add_resource(UsersResource, '/users')
 api.add_resource(UserResource, '/users/<name>')
