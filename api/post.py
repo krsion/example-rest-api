@@ -4,8 +4,9 @@ from marshmallow import fields
 from pony.orm import PrimaryKey, Required, db_session
 
 from . import db, api, ma
-from .auth import user_exists, self_or_admin
 from .user import User, UserSchema
+from .auth import user_exists, self_or_admin
+
 
 
 class Post(db.Entity):
