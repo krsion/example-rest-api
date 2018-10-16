@@ -4,10 +4,10 @@ from flask_restful import Resource, abort
 from pony.orm import db_session
 from werkzeug.security import check_password_hash
 
-from app import api
-from auth import self_or_admin, user_exists
-from models import User, Post
-from serialization import UserSchema, LoginSchema, PostSchema
+from . import api
+from .auth import self_or_admin, user_exists
+from .models import User, Post
+from .serialization import UserSchema, LoginSchema, PostSchema
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)

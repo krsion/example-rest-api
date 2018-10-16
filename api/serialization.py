@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from app import ma
+from . import ma
 
 
 class LoginSchema(ma.Schema):
