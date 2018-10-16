@@ -14,7 +14,6 @@ ma = Marshmallow(app)
 
 jwt = JWTManager(app)
 
-from .user import User
 from .post import PostResource, PostsResource
 from .user import UserResource, UsersResource
 from .login import LoginResource
