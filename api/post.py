@@ -1,12 +1,12 @@
 from flask import request
 from flask_restful import Resource, abort
+from flask_jwt_extended import jwt_required
 from marshmallow import fields
 from pony.orm import PrimaryKey, Required, db_session
 
 from . import db, api, ma
 from .user import User, UserSchema
 from .auth import user_exists, self_or_admin
-
 
 
 class Post(db.Entity):
@@ -37,7 +37,7 @@ class Post(db.Entity):
 
 
 class PostSchema(ma.Schema):
-    id = fields.Integer(required=True)
+    id = fields.Integer()
     author = fields.Nested(UserSchema, only=['name'])
     text = fields.String()
     _links = ma.Hyperlinks({
@@ -61,6 +61,7 @@ class PostResource(Resource):
         return PostSchema().dump(Post.get_post(id)).data
 
     @db_session
+    @jwt_required
     def put(self, name, id):
         if not user_exists(name) or not post_exists(id):
             abort(404)
@@ -71,6 +72,7 @@ class PostResource(Resource):
         return PostSchema().dump(Post.get_post(id))
 
     @db_session
+    @jwt_required
     def delete(self, name, id):
         if not user_exists(name) or not post_exists(id):
             abort(404)
@@ -88,13 +90,14 @@ class PostsResource(Resource):
         return PostSchema(many=True).dump(User.get_user(name).posts)
 
     @db_session
+    @jwt_required
     def post(self, name):
         if not user_exists(name):
             abort(404)
         if not self_or_admin(name):
             abort(403)
-        loaded = PostSchema().load(request.get_json())
+        loaded = PostSchema(exclude=('id','author')).load(request.get_json())
         if loaded.errors:
             abort(400, message=loaded.errors)
-        post = Post.add_post(**loaded.data)
-        return '', 201, {'location': api.url_for(PostResource, id=post.id, name=name)}
+        post = Post.add_post(**loaded.data, author=User.get_user(name))
+        return '', 201

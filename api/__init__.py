@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
@@ -8,6 +9,7 @@ db = Database('sqlite', '../db.sqlite', create_db=True)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super-secret'
+cors = CORS(app)
 
 api = Api(app)
 ma = Marshmallow(app)

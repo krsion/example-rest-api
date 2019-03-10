@@ -23,4 +23,4 @@ class LoginResource(Resource):
         user = User.get_user(loaded.data['name'])
         if not check_password_hash(user.password, loaded.data['password']):
             abort(401, message='Incorrect password')
-        return create_access_token(identity=loaded.data['name'])
+        return create_access_token(identity=user.name)

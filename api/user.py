@@ -1,5 +1,5 @@
 from flask import request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_raw_jwt
 from flask_restful import Resource, abort
 from marshmallow import fields
 from pony.orm import PrimaryKey, Required, Set, db_session
@@ -39,10 +39,12 @@ class User(db.Entity):
 
 class UserSchema(ma.Schema):
     name = fields.String(required=True)
+    password = fields.String()
     posts = fields.Nested('PostSchema', many=True, exclude=('author',))
     _links = ma.Hyperlinks({
         'self': ma.URLFor('userresource', name='<name>'),
-        'collection': ma.URLFor('usersresource')
+        'collection': ma.URLFor('usersresource'),
+        #'posts': ma.URLFor('postsresource', name='<name>')
     })
 
     class Meta:
@@ -58,7 +60,7 @@ class UserResource(Resource):
         user = User.get_user(name)
         if not user:
             abort(404)
-        return UserSchema().dump(user).data
+        return UserSchema(exclude=['password']).dump(user).data
 
     @db_session
     @jwt_required
@@ -69,7 +71,7 @@ class UserResource(Resource):
             abort(403)
         data = UserSchema().load(request.get_json()).data
         User.update_user(name, **data)
-        return UserSchema().dump(User.get_user(name))
+        return UserSchema(exclude=['password']).dump(User.get_user(name))
 
     @db_session
     @jwt_required
@@ -85,7 +87,7 @@ class UserResource(Resource):
 class UsersResource(Resource):
     @db_session
     def get(self):
-        return UserSchema(many=True).dump(User.get_all_users_list()).data
+        return UserSchema(many=True, exclude=['password']).dump(User.get_all_users_list()).data
 
     @db_session
     def post(self):
